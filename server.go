@@ -43,7 +43,7 @@ type Config struct {
 	LogEmptyResponses bool
 }
 
-// mDNS server is used to listen for mDNS queries and respond if we
+// Server is used to listen for mDNS queries and respond if we
 // have a matching local record
 type Server struct {
 	config *Config

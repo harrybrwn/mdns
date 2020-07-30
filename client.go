@@ -1,6 +1,7 @@
 package mdns
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -306,19 +307,25 @@ func (c *client) sendQuery(q *dns.Msg) error {
 	if err != nil {
 		return err
 	}
+	if c.ipv4UnicastConn == nil && c.ipv6UnicastConn == nil {
+		return errors.New("no unicast connection")
+	}
+	var errv4, errv6 error
 	if c.ipv4UnicastConn != nil {
-		_, err = c.ipv4UnicastConn.WriteToUDP(buf, ipv4Addr)
-		if err != nil {
-			return err
-		}
+		_, errv4 = c.ipv4UnicastConn.WriteToUDP(buf, ipv4Addr)
 	}
 	if c.ipv6UnicastConn != nil {
-		_, err = c.ipv6UnicastConn.WriteToUDP(buf, ipv6Addr)
-		if err != nil {
-			return err
-		}
+		_, errv6 = c.ipv6UnicastConn.WriteToUDP(buf, ipv6Addr)
 	}
-	return nil
+
+	// only return an error if both udp writes failed,
+	// sometimes the udp6 write will fail and the error propagates
+	// up through the call stack when the udp4 write worked just fine
+	if errv4 != nil && errv6 != nil {
+		return fmt.Errorf("mdns: sendQuery: %v, %v", errv4, errv6)
+	}
+	// if the udp4 write failed then the entire query most likely failed
+	return errv4
 }
 
 // recv is used to receive until we get a shutdown
