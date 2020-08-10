@@ -24,24 +24,24 @@ func TestServer_Lookup(t *testing.T) {
 
 	entries := make(chan *ServiceEntry, 1)
 	var found int32 = 0
-	go func() {
+	go func(t *testing.T) {
 		select {
 		case e := <-entries:
 			if e.Name != "hostname._foobar._tcp.local." {
-				t.Fatalf("bad: %v", e)
+				t.Errorf("bad: %v", e)
 			}
 			if e.Port != 80 {
-				t.Fatalf("bad: %v", e)
+				t.Errorf("bad: %v", e)
 			}
 			if e.Info != "Local web server" {
-				t.Fatalf("bad: %v", e)
+				t.Errorf("bad: %v", e)
 			}
 			atomic.StoreInt32(&found, 1)
 
 		case <-time.After(80 * time.Millisecond):
-			t.Fatalf("timeout")
+			t.Errorf("timeout")
 		}
-	}()
+	}(t)
 
 	params := &QueryParam{
 		Service: "_foobar._tcp",

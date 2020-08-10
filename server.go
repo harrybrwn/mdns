@@ -2,12 +2,12 @@ package mdns
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"strings"
 	"sync/atomic"
 
 	"github.com/miekg/dns"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -281,8 +281,7 @@ func (s *Server) sendResponse(resp *dns.Msg, from net.Addr, unicast bool) error 
 	if addr.IP.To4() != nil {
 		_, err = s.ipv4List.WriteToUDP(buf, addr)
 		return err
-	} else {
-		_, err = s.ipv6List.WriteToUDP(buf, addr)
-		return err
 	}
+	_, err = s.ipv6List.WriteToUDP(buf, addr)
+	return err
 }

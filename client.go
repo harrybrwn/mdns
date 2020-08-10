@@ -3,13 +3,13 @@ package mdns
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 	"sync/atomic"
 	"time"
 
 	"github.com/miekg/dns"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/ipv4"
 	"golang.org/x/net/ipv6"
 )
